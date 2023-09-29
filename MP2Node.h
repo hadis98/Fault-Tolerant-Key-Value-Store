@@ -18,6 +18,23 @@
 #include "Params.h"
 #include "Message.h"
 #include "Queue.h"
+const int STABLE = -1;
+
+class transaction
+{
+private:
+	int id;
+	int timestamp;
+
+public:
+	transaction(int trans_id, int timestamp, MessageType mType, string key, string value);
+	int replyCount;
+	int successCount;
+	string key;
+	string value;
+	MessageType mType;
+	int getTime() { return timestamp; };
+};
 
 /**
  * CLASS NAME: MP2Node
@@ -29,7 +46,8 @@
  * 				3) Server side CRUD APIs
  * 				4) Client side CRUD APIs
  */
-class MP2Node {
+class MP2Node
+{
 private:
 	// Vector holding the next two neighbors in the ring who have my replicas
 	vector<Node> hasMyReplicas;
@@ -38,19 +56,24 @@ private:
 	// Ring
 	vector<Node> ring;
 	// Hash Table
-	HashTable * ht;
+	HashTable *ht;
 	// Member representing this member
 	Member *memberNode;
 	// Params object
 	Params *par;
 	// Object of EmulNet
-	EmulNet * emulNet;
+	EmulNet *emulNet;
 	// Object of Log
-	Log * log;
+	Log *log;
+	// Transactions
+	map<int, transaction *> transMap;
+	// <trans_id, success>
+	map<int, bool> transComplete;
 
 public:
 	MP2Node(Member *memberNode, Params *par, EmulNet *emulNet, Log *log, Address *addressOfMember);
-	Member * getMemberNode() {
+	Member *getMemberNode()
+	{
 		return this->memberNode;
 	}
 
@@ -80,14 +103,22 @@ public:
 	vector<Node> findNodes(string key);
 
 	// server
-	bool createKeyValue(string key, string value, ReplicaType replica);
-	string readKey(string key);
-	bool updateKeyValue(string key, string value, ReplicaType replica);
-	bool deletekey(string key);
+	bool createKeyValue(string key, string value, ReplicaType replica, int transID);
+	string readKey(string key, int transID);
+	bool updateKeyValue(string key, string value, ReplicaType replica, int transID);
+	bool deletekey(string key, int transID);
 
 	// stabilization protocol - handle multiple failures
 	void stabilizationProtocol();
 
+	// My function
+	Message constructMsg(MessageType mType, string key, string value = "", bool success = false);
+	void createTransaction(int trans_id, MessageType mType, string key, string value);
+	void sendreply(string key, MessageType mType, bool success, Address *fromaddr, int transID, string content = "");
+	void checkTransMap();
+	void logOperation(transaction *t, bool isCoordinator, bool success, int transID);
+
+	// Destructor
 	~MP2Node();
 };
 
