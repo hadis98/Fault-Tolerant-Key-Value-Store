@@ -28,10 +28,11 @@
 /**
  * Message Types
  */
-enum MsgTypes{
-    JOINREQ,
-    JOINREP,
-    DUMMYLASTMSGTYPE,
+enum MsgTypes
+{
+	JOINREQ,
+	JOINREP,
+	DUMMYLASTMSGTYPE,
 	PING
 };
 
@@ -40,18 +41,20 @@ enum MsgTypes{
  *
  * DESCRIPTION: Header and content of a message
  */
-typedef struct MessageHdr {
+typedef struct MessageHdr
+{
 	enum MsgTypes msgType;
-vector< MemberListEntry> member_vector;
-	Address* addr;
-}MessageHdr;
+	vector<MemberListEntry> member_vector;
+	Address *addr;
+} MessageHdr;
 
 /**
  * CLASS NAME: MP1Node
  *
  * DESCRIPTION: Class implementing Membership protocol functionalities for failure detection
  */
-class MP1Node {
+class MP1Node
+{
 private:
 	EmulNet *emulNet;
 	Log *log;
@@ -61,7 +64,8 @@ private:
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
-	Member * getMemberNode() {
+	Member *getMemberNode()
+	{
 		return memberNode;
 	}
 	int recvLoop();
@@ -79,14 +83,14 @@ public:
 	void initMemberListTable(Member *memberNode);
 	void printAddress(Address *addr);
 	virtual ~MP1Node();
-void push_member_list( MessageHdr* msg);
-	void push_member_list(MemberListEntry* e);
-	MemberListEntry* check_member_list( int id, short port);
-	void send_message(Address* toaddr, MsgTypes t);
-	void ping_handler(MessageHdr* msg);
-	MemberListEntry* check_member_list(Address* node_addr);
-	void update_src_member(MessageHdr* msg);
-	Address* get_address(int id, short port);
+	void push_member_list(MessageHdr *msg);
+	void push_member_list(MemberListEntry *e);
+	MemberListEntry *check_member_list(int id, short port);
+	void send_message(Address *toaddr, MsgTypes t);
+	void ping_handler(MessageHdr *msg);
+	MemberListEntry *check_member_list(Address *node_addr);
+	void update_src_member(MessageHdr *msg);
+	Address *get_address(int id, short port);
 };
 
 #endif /* _MP1NODE_H_ */
